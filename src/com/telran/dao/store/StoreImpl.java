@@ -20,15 +20,11 @@ public class StoreImpl implements Store {
     @Override
     @RolesAllowed("admin")
     public void addToStore(ProductEntity product) {
-        if (productsByName.containsKey(requireNonNull(product).getName())) {
-            ProductEntity removed = productsByName.remove(product.getName()); //
-            productsByName.put(product.getName(),
-                    new ProductEntity(
-                            product.getName(),
-                            Double.sum(removed.getCount(), product.getCount()),
-                            product.getUnit(),
-                            product.getPricePerUnit()));
-        } else productsByName.put(requireNonNull(product).getName(), product);
+        productsByName.merge(product.getName(), product, (p1, p2) -> new ProductEntity(
+                p2.getName(),
+                Double.sum(p1.getCount(), p2.getCount()),
+                p2.getUnit(),
+                p2.getPricePerUnit()));
     }
 
     @Override
