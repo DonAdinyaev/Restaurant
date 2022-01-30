@@ -14,17 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CRMImplTest {
-    CRMImpl crm;
-
-    void init() {
-        crm = new CRMImpl();
-    }
+    CRMImpl crm = new CRMImpl();
+    ProductEntity potatoes = new ProductEntity("Potato", 2, ProductUnit.KG, 0);
+    ProductEntity chicken = new ProductEntity("Chicken", 1, ProductUnit.KG, 0);
 
     @Test
     void addDeliveryOrder_DeliveryOrder_Added() {
-        init();
-        var potatoes = new ProductEntity("Potato", 2, ProductUnit.KG, 0);
-        var chicken = new ProductEntity("Chicken", 1, ProductUnit.KG, 0);
         Set<ProductEntity> setOfProducts = new HashSet<>();
         setOfProducts.add(potatoes);
         setOfProducts.add(chicken);
@@ -35,9 +30,6 @@ class CRMImplTest {
 
     @Test
     void getDeliveryOrderPeriod() {
-        init();
-        ProductEntity potatoes = new ProductEntity("Potato", 2, ProductUnit.KG, 0);
-        ProductEntity chicken = new ProductEntity("Chicken", 1, ProductUnit.KG, 0);
         Set<ProductEntity> setOfProducts = new HashSet<>();
         setOfProducts.add(potatoes);
         setOfProducts.add(chicken);
