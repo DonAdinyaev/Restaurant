@@ -9,7 +9,7 @@ public class UserOrderEntity {
     private final UUID id;
     private final LocalDateTime date;
     private final List<MenuItemEntity> menuItems;
-    private UserOrderStatus status; //keyword final deleted
+    private final UserOrderStatus status;
 
     public UserOrderEntity(UUID id, LocalDateTime date, List<MenuItemEntity> menuItems, UserOrderStatus status) {
         this.id = id;
@@ -32,12 +32,6 @@ public class UserOrderEntity {
 
     public UserOrderStatus getStatus() {
         return status;
-    }
-
-    public void changeStatus(UserOrderStatus status) { //new method added
-        if (Objects.requireNonNull(status).ordinal() < this.getStatus().ordinal())
-            throw new UnsupportedOperationException("Status cannot be rolled back.");
-        this.status = status;
     }
 
     @Override

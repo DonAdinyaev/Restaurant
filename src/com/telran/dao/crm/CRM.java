@@ -6,6 +6,7 @@ import com.telran.dao.entity.UserOrderEntity;
 import com.telran.dao.entity.UserOrderStatus;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -21,7 +22,7 @@ public interface CRM {
     Stream<UserOrderEntity> getUserOrdersPeriodByStatus(LocalDate from, LocalDate to, UserOrderStatus status);
 
     //For users
-    UUID createUserOrder();
+    UUID createUserOrder(LocalDateTime orderTime);
 
     void updateUserOrder(UUID id, List<MenuItemEntity> items);
 

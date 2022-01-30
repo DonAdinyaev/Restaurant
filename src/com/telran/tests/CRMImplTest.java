@@ -48,7 +48,7 @@ class CRMImplTest {
         crm.addDeliveryOrder(deliveryOrder2);
         crm.addDeliveryOrder(deliveryOrder3);
         DeliveryOrderEntity[] deliveryOrderEntities = {deliveryOrder1, deliveryOrder2};
-        assertArrayEquals(deliveryOrderEntities, crm.getDeliveryOrderPeriod(LocalDateTime.now().minusDays(3).toLocalDate(), LocalDateTime.now().toLocalDate()).toArray());
+        assertArrayEquals(deliveryOrderEntities, crm.getDeliveryOrderPeriod(LocalDateTime.now().minusDays(3).toLocalDate(), LocalDateTime.now().minusDays(1).toLocalDate()).toArray());
     }
 
     @Test

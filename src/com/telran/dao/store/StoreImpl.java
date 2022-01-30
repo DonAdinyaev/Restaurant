@@ -20,11 +20,14 @@ public class StoreImpl implements Store {
     @Override
     @RolesAllowed("admin")
     public void addToStore(ProductEntity product) {
-        productsByName.merge(product.getName(), product, (p1, p2) -> new ProductEntity(
-                p2.getName(),
-                Double.sum(p1.getCount(), p2.getCount()),
-                p2.getUnit(),
-                p2.getPricePerUnit()));
+        productsByName.merge(
+                product.getName(),
+                requireNonNull(product),
+                (p1, p2) -> new ProductEntity(
+                        p2.getName(),
+                        Double.sum(p1.getCount(), p2.getCount()),
+                        p2.getUnit(),
+                        p2.getPricePerUnit()));
     }
 
     @Override
