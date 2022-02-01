@@ -1,24 +1,21 @@
 package com.telran.service.admin;
 
 import com.telran.dao.crm.CRM;
-import com.telran.dao.entity.IngredientEntity;
-import com.telran.dao.entity.MenuItemEntity;
-import com.telran.dao.entity.ProductUnit;
+import com.telran.dao.entity.*;
 import com.telran.dao.menu.Menu;
 import com.telran.dao.shop.Shop;
-import com.telran.dao.shop.ShopImpl;
 import com.telran.dao.store.Store;
-import com.telran.service.dto.IngredientDto;
-import com.telran.service.dto.MenuItemDto;
-import com.telran.service.dto.ProductDto;
-import com.telran.service.dto.ReportDto;
+import com.telran.service.dto.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Objects.requireNonNull;
 
 public class AdminServiceImpl implements AdminService {
     private final Shop shop;
@@ -35,52 +32,132 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void addMenuItem(String name, double price, String category, Set<IngredientDto> ingredients) {
-        menu.addMenuItem(new MenuItemEntity(
-                Objects.requireNonNull(name),
-                price,
-                Objects.requireNonNull(category),
-                Objects.requireNonNull(ingredients).stream()
-                        .map(this::map)
-                        .collect(Collectors.toSet())
-        ));
+        menu.addMenuItem(menuItemEntityOf(name, price, category, ingredients));
     }
 
     @Override
     public void updateMenuItem(String name, double price, String category, Set<IngredientDto> ingredients) {
-
+        menu.updateMenuItem(menuItemEntityOf(name, price, category, ingredients));
     }
 
     @Override
     public void deleteMenuItem(String name) {
-
+        menu.deleteMenuItem(name);
     }
 
     @Override
     public Stream<MenuItemDto> getMenu() {
-        return null;
+        return menu.getAll()
+                .map(m -> menuItemDtoOf(m.getName(),
+                        m.getPrice(),
+                        m.getCategory(),
+                        m.getIngredients()));
     }
 
     @Override
     public void makeProductDelivery(Map<String, Double> products) {
+        Set<ProductEntity> setOfProductEntities = products.entrySet().stream()
+                .collect(HashSet::new,
+                        (set, entry) -> set.add(productEntityOf(entry.getKey(), entry.getValue())),
+                        HashSet::addAll);
+        crm.addDeliveryOrder(new DeliveryOrderEntity(LocalDateTime.now(), setOfProductEntities));
+    }
 
+    private ProductEntity productEntityOf(String name, double count) {
+        if (count < 0) throw new IllegalArgumentException("Product count should not be negative.");
+        ProductEntity fromShop = shop.getProductByName(name);
+        if (requireNonNull(fromShop).getCount() < count)
+            throw new RuntimeException(
+                    String.format("Delivery creation failure. Shop has only %.1f %s of %s",
+                            fromShop.getCount(), fromShop.getUnit().name(), name));
+        return new ProductEntity(
+                fromShop.getName(),
+                count,
+                fromShop.getUnit(),
+                fromShop.getPricePerUnit()
+        );
     }
 
     @Override
     public Stream<ProductDto> getStoreStatus() {
-        return null;
+        return store.getStoreStatus()
+                .map(this::productEntityToDto);
+    }
+
+    private ProductDto productEntityToDto(ProductEntity entity) {
+        return ProductDto.of(entity.getName(), entity.getCount(), ProductUnitDto.valueOf(entity.getUnit().name()));
     }
 
     @Override
     public Stream<ReportDto> getReport(LocalDate from, LocalDate to) {
-        return null;
+        Stream<ReportDto> report = Stream.empty();
+        for (ReportDto.Type type : ReportDto.Type.values())
+            report = Stream.concat(report, getReport(from, to, type));
+        return report;
     }
 
     @Override
     public Stream<ReportDto> getReport(LocalDate from, LocalDate to, ReportDto.Type type) {
-        return null;
+        Stream<ReportDto> report;
+        switch (type) {
+            case Delivery -> report = crm.getDeliveryOrdersPeriod(from, to).map(this::deliveryToReportDto);
+            case Order -> report = crm.getUserOrdersPeriod(from, to).map(this::orderToReportDto);
+            default -> throw new IllegalArgumentException(String.format("%s is not an existing type", type.name()));
+        }
+        return report;
     }
 
-    private IngredientEntity map(IngredientDto dto){
-        return new IngredientEntity(dto.getName(),dto.getCount(), ProductUnit.valueOf(dto.getUnit().name()));
+    private ReportDto orderToReportDto(UserOrderEntity order) {
+        return ReportDto.of(
+            order.getId().toString(),
+            ReportDto.Type.Delivery,
+            order.getDate(),
+            order.getMenuItems().stream()
+                    .map(MenuItemEntity::getName)
+                    .collect(Collectors.toList()),
+            order.getMenuItems().stream()
+                    .mapToDouble(MenuItemEntity::getPrice)
+                    .reduce(0, Double::sum));
+    }
+
+    private ReportDto deliveryToReportDto(DeliveryOrderEntity order) {
+        return ReportDto.of(
+                order.getId().toString(),
+                ReportDto.Type.Delivery,
+                order.getDate(),
+                order.getProducts().stream()
+                        .map(ProductEntity::getName)
+                        .collect(Collectors.toList()),
+                order.getProducts().stream()
+                        .mapToDouble(ProductEntity::getCount)
+                        .reduce(0, Double::sum));
+    }
+
+    private IngredientEntity ingredientDtoToEntity(IngredientDto dto) {
+        return new IngredientEntity(dto.getName(), dto.getCount(), ProductUnit.valueOf(dto.getUnit().name()));
+    }
+
+    private MenuItemEntity menuItemEntityOf(String name, double price, String category, Set<IngredientDto> ingredients) {
+        return new MenuItemEntity(
+                requireNonNull(name),
+                price,
+                requireNonNull(category),
+                requireNonNull(ingredients).stream()
+                        .map(this::ingredientDtoToEntity)
+                        .collect(Collectors.toSet()));
+    }
+
+    private IngredientDto ingredientEntityToDTO(IngredientEntity entity) {
+        return IngredientDto.of(entity.getName(), entity.getCount(), ProductUnitDto.valueOf(entity.getUnit().name()));
+    }
+
+    private MenuItemDto menuItemDtoOf(String name, double price, String category, Set<IngredientEntity> ingredients) {
+        return MenuItemDto.of(
+                requireNonNull(name),
+                price,
+                requireNonNull(category),
+                requireNonNull(ingredients).stream()
+                        .map(this::ingredientEntityToDTO)
+                        .collect(Collectors.toSet()));
     }
 }

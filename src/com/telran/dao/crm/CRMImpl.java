@@ -32,7 +32,7 @@ public class CRMImpl implements CRM {
     }
 
     @Override
-    public Stream<DeliveryOrderEntity> getDeliveryOrderPeriod(LocalDate from, LocalDate to) {
+    public Stream<DeliveryOrderEntity> getDeliveryOrdersPeriod(LocalDate from, LocalDate to) {
         return ordersByPeriod(from, to, deliveryOrders);
     }
 

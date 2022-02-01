@@ -15,7 +15,7 @@ public interface CRM {
     //For admin
     void addDeliveryOrder(DeliveryOrderEntity order);
 
-    Stream<DeliveryOrderEntity> getDeliveryOrderPeriod(LocalDate from, LocalDate to);
+    Stream<DeliveryOrderEntity> getDeliveryOrdersPeriod(LocalDate from, LocalDate to);
 
     Stream<UserOrderEntity> getUserOrdersPeriod(LocalDate from, LocalDate to);
 

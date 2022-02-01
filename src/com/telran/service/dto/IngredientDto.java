@@ -13,7 +13,8 @@ public class IngredientDto {
         this.unit = unit;
     }
 
-    private static IngredientDto of(String name, double count, ProductUnitDto unit){
+    /**changed to public*/
+    public static IngredientDto of(String name, double count, ProductUnitDto unit){
         return new IngredientDto(Objects.requireNonNull(name),count,Objects.requireNonNull(unit));
     }
 

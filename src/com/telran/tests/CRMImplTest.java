@@ -25,7 +25,7 @@ class CRMImplTest {
         setOfProducts.add(chicken);
         DeliveryOrderEntity deliveryOrder = new DeliveryOrderEntity(LocalDateTime.now(), setOfProducts);
         crm.addDeliveryOrder(deliveryOrder);
-        assertEquals(deliveryOrder, crm.getDeliveryOrderPeriod(LocalDateTime.MIN.toLocalDate(), LocalDateTime.MAX.toLocalDate()).findAny().orElse(null));
+        assertEquals(deliveryOrder, crm.getDeliveryOrdersPeriod(LocalDateTime.MIN.toLocalDate(), LocalDateTime.MAX.toLocalDate()).findAny().orElse(null));
     }
 
     @Test
@@ -40,7 +40,7 @@ class CRMImplTest {
         crm.addDeliveryOrder(deliveryOrder2);
         crm.addDeliveryOrder(deliveryOrder3);
         DeliveryOrderEntity[] deliveryOrderEntities = {deliveryOrder1, deliveryOrder2};
-        assertArrayEquals(deliveryOrderEntities, crm.getDeliveryOrderPeriod(LocalDateTime.now().minusDays(3).toLocalDate(), LocalDateTime.now().minusDays(1).toLocalDate()).toArray());
+        assertArrayEquals(deliveryOrderEntities, crm.getDeliveryOrdersPeriod(LocalDateTime.now().minusDays(3).toLocalDate(), LocalDateTime.now().minusDays(1).toLocalDate()).toArray());
     }
 
     @Test
