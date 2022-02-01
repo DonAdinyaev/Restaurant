@@ -48,34 +48,25 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Stream<MenuItemDto> getMenu() {
         return menu.getAll()
-                .map(m -> menuItemDtoOf(m.getName(),
-                        m.getPrice(),
-                        m.getCategory(),
-                        m.getIngredients()));
+                .map(m -> menuItemDtoOf(m.getName(),m.getPrice(),m.getCategory(),m.getIngredients()));
     }
 
     @Override
     public void makeProductDelivery(Map<String, Double> products) {
-        Set<ProductEntity> setOfProductEntities = products.entrySet().stream()
-                .collect(HashSet::new,
-                        (set, entry) -> set.add(productEntityOf(entry.getKey(), entry.getValue())),
-                        HashSet::addAll);
-        crm.addDeliveryOrder(new DeliveryOrderEntity(LocalDateTime.now(), setOfProductEntities));
+        crm.addDeliveryOrder(new DeliveryOrderEntity(
+                        LocalDateTime.now(),
+                        products.entrySet().stream()
+                                .collect(HashSet::new,
+                                        (set, entry) -> set.add(productEntityOf(entry.getKey(), entry.getValue())),
+                                        HashSet::addAll)));
     }
 
     private ProductEntity productEntityOf(String name, double count) {
         if (count < 0) throw new IllegalArgumentException("Product count should not be negative.");
         ProductEntity fromShop = shop.getProductByName(name);
-        if (requireNonNull(fromShop).getCount() < count)
-            throw new RuntimeException(
-                    String.format("Delivery creation failure. Shop has only %.1f %s of %s",
+        if (requireNonNull(fromShop).getCount() < count) throw new RuntimeException(String.format("Delivery creation failure. Shop has only %.1f %s of %s",
                             fromShop.getCount(), fromShop.getUnit().name(), name));
-        return new ProductEntity(
-                fromShop.getName(),
-                count,
-                fromShop.getUnit(),
-                fromShop.getPricePerUnit()
-        );
+        return new ProductEntity(fromShop.getName(),count,fromShop.getUnit(),fromShop.getPricePerUnit());
     }
 
     @Override
