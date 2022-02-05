@@ -13,8 +13,8 @@ public class UserMenuDto {
         this.menu = menu;
     }
 
-    public static UserMenuDto of(String orderId, Set<OrderItemDto> menu){
-        return new UserMenuDto(Objects.requireNonNull(orderId),Objects.requireNonNull(menu));
+    public static UserMenuDto of(String orderId, Set<OrderItemDto> menu) {
+        return new UserMenuDto(Objects.requireNonNull(orderId), Objects.requireNonNull(menu));
     }
 
     public String getOrderId() {

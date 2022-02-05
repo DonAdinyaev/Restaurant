@@ -11,6 +11,8 @@ public interface Menu {
 
     void deleteMenuItem(String name);
 
+    MenuItemEntity getMenuItem(String name);
+
     Stream<MenuItemEntity> getAll();
 
     Stream<MenuItemEntity> getByCategory(String category);

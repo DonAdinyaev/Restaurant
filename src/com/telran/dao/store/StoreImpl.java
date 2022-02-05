@@ -1,7 +1,6 @@
 package com.telran.dao.store;
 
 import com.telran.dao.entity.ProductEntity;
-import com.telran.dao.security.RolesAllowed;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +17,6 @@ public class StoreImpl implements Store {
     }
 
     @Override
-    @RolesAllowed("admin")
     public void addToStore(ProductEntity product) {
         productsByName.merge(
                 product.getName(),
@@ -31,19 +29,16 @@ public class StoreImpl implements Store {
     }
 
     @Override
-    @RolesAllowed("admin")
     public void addToStore(Set<ProductEntity> products) {
         products.forEach(this::addToStore);
     }
 
     @Override
-    @RolesAllowed("admin")
     public ProductEntity getProductByName(String name) {
         return productsByName.get(requireNonNull(name));
     }
 
     @Override
-    @RolesAllowed("admin")
     public Stream<ProductEntity> getStoreStatus() {
         return productsByName.values().stream();
     }

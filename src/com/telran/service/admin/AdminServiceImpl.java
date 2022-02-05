@@ -53,12 +53,14 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public void makeProductDelivery(Map<String, Double> products) {
-        crm.addDeliveryOrder(new DeliveryOrderEntity(
+        DeliveryOrderEntity order = new DeliveryOrderEntity(
                         LocalDateTime.now(),
                         products.entrySet().stream()
                                 .collect(HashSet::new,
                                         (set, entry) -> set.add(productEntityOf(entry.getKey(), entry.getValue())),
-                                        HashSet::addAll)));
+                                        HashSet::addAll));
+        crm.addDeliveryOrder(order);
+        store.addToStore(order.getProducts());
     }
 
     private ProductEntity productEntityOf(String name, double count) {

@@ -1,7 +1,6 @@
 package com.telran.dao.menu;
 
 import com.telran.dao.entity.MenuItemEntity;
-import com.telran.dao.security.RolesAllowed;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +16,11 @@ public class MenuImpl implements Menu {
     }
 
     @Override
-    @RolesAllowed("admin")
     public void addMenuItem(MenuItemEntity item) {
         menu.put(Objects.requireNonNull(item).getName(), item);
     }
 
     @Override
-    @RolesAllowed("admin")
     public void updateMenuItem(MenuItemEntity item) {
         if (!menu.containsKey(Objects.requireNonNull(item).getName()))
             throw new NoSuchElementException("Item " + item.getName() + " was not found in the menu.");
@@ -31,7 +28,6 @@ public class MenuImpl implements Menu {
     }
 
     @Override
-    @RolesAllowed("admin")
     public void deleteMenuItem(String name) {
         if (!menu.containsKey(name))
             throw new NoSuchElementException("Item " + name + " was not found in the menu.");
@@ -39,7 +35,11 @@ public class MenuImpl implements Menu {
     }
 
     @Override
-    @RolesAllowed("admin")
+    public MenuItemEntity getMenuItem(String name) {
+        return menu.get(name);
+    }
+
+    @Override
     public Stream<MenuItemEntity> getAll() {
         return menu.values().stream();
     }

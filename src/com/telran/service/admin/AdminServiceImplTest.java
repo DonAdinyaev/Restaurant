@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Locale;
 import java.util.Set;
 
 class AdminServiceImplTest {
@@ -36,6 +37,7 @@ class AdminServiceImplTest {
                        IngredientDto.of("Egg", 3, ProductUnitDto.UNIT),
                        IngredientDto.of("Oil", 0.1, ProductUnitDto.LITER),
                        IngredientDto.of("Milk", 0.3, ProductUnitDto.LITER)));
+
     }
 
     @Test
@@ -45,7 +47,20 @@ class AdminServiceImplTest {
     }
 
     @Test
-    void updateMenuItem() {
+    void updateMenuItem_ChangedMenuItem_Pass() {
+        MenuItemDto omeletteDtoUpdated = MenuItemDto.of(
+                "Omelette", 25, "Breakfast", Set.of(
+                        IngredientDto.of("Egg", 2, ProductUnitDto.UNIT),
+                        IngredientDto.of("Oil", 0.1, ProductUnitDto.LITER),
+                        IngredientDto.of("Milk", 0.3, ProductUnitDto.LITER)));
+        admin.addMenuItem(omeletteDto.getName(), omeletteDto.getPrice(), omeletteDto.getCategory(), omeletteDto.getIngredients());
+        admin.updateMenuItem(
+                omeletteDtoUpdated.getName(),
+                omeletteDtoUpdated.getPrice(),
+                omeletteDtoUpdated.getCategory(),
+                omeletteDtoUpdated.getIngredients());
+        assertEquals(2, admin.getMenu().filter(item -> item.getName().equals("Omelette")).findAny().orElse(null)
+                .getIngredients().stream().filter(ing -> ing.getName() == "Egg").findAny().orElse(null).getCount());
     }
 
     @Test
